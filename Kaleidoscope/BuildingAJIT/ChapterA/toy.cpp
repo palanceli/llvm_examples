@@ -1301,7 +1301,7 @@ int main() {
   
   TheJIT = llvm::make_unique<KaleidoscopeJIT>();
   InitializeModule();
-  run2();
+  run1();
   return 0;
   
   // Install standard binary operators.
