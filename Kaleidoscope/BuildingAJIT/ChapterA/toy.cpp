@@ -1214,11 +1214,72 @@ extern "C" double printd(double X) {
 // Main driver code.
 //===----------------------------------------------------------------------===//
 
-int main() {
-  InitializeNativeTarget();
-  InitializeNativeTargetAsmPrinter();
-  InitializeNativeTargetAsmParser();
-  
+
+ExecutionEngine* EE = NULL;
+RTDyldMemoryManager* RTDyldMM = NULL;
+
+void initEE(std::unique_ptr<Module> Owner) {
+  std::string ErrStr;
+  if (EE == NULL) {
+    RTDyldMM = (RTDyldMemoryManager*)new SectionMemoryManager();
+    EE = EngineBuilder(std::move(Owner))
+    .setErrorStr(&ErrStr)
+    .setEngineKind(llvm::EngineKind::JIT)
+    .setVerifyModules(true)
+    .setMCJITMemoryManager(std::unique_ptr<llvm::RTDyldMemoryManager>(RTDyldMM))
+    .setOptLevel(llvm::CodeGenOpt::Default)
+    .create();
+
+  } else
+    EE->addModule(std::move(Owner));
+  if (ErrStr.length() != 0)
+    std::cerr << "Create Engine Error" << std::endl << ErrStr << std::endl;
+  EE->finalizeObject();
+}
+
+typedef void (*func_type)(void*);
+
+// path是bc文件的路径，func_name是要执行的函数名
+void Run(const std::string& path, const std::string& func_name) {
+
+  // 首先要读取要执行的bc字节码
+  SMDiagnostic error;
+  std::unique_ptr<Module> Owner = parseIRFile(path, error, TheContext);
+  if(Owner == nullptr) {
+    std::cout << "Load Error: " << path << std::endl;
+    Owner->dump();
+    return;
+  }
+
+  // 单例的方法进行初始化，暂未考虑多线程
+  std::string ErrStr;
+  if (EE == NULL) {
+    RTDyldMM = (RTDyldMemoryManager*)new SectionMemoryManager();
+    EE = EngineBuilder(std::move(Owner))
+    .setErrorStr(&ErrStr)
+    .setEngineKind(llvm::EngineKind::JIT)
+    .setVerifyModules(true)
+    .setMCJITMemoryManager(std::unique_ptr<llvm::RTDyldMemoryManager>(RTDyldMM))
+    .setOptLevel(llvm::CodeGenOpt::Default)
+    .create();
+    
+  } else
+    EE->addModule(std::move(Owner));
+  if (ErrStr.length() != 0)
+    std::cerr << "Create Engine Error" << std::endl << ErrStr << std::endl;
+  EE->finalizeObject();
+
+  // 获取编译后的函数指针并执行
+  uint64_t func_addr = EE->getFunctionAddress(func_name.c_str());
+  if (func_addr == 0) {
+    printf("错误, 找不到函数: %s\n", func_name.c_str());
+    return;
+  }
+  func_type func = (func_type) func_addr;
+  func(NULL); // 需要传参数时可以从这里传递
+}
+
+void run1(){
   SMDiagnostic SMD;
   LLVMContext context;
   std::string err;
@@ -1229,9 +1290,20 @@ int main() {
   EE->runStaticConstructorsDestructors(false);
   Function* func=EE->FindFunctionNamed("testEntry");
   EE->runFunction(func,ArrayRef<GenericValue>());
+}
+void run2(){
+  Run("/Users/palance/Documents/GitHub/llvm_examples/Kaleidoscope/BuildingAJIT/ChapterA/test/test/main.ll", "testEntry");
+}
+int main() {
+  InitializeNativeTarget();
+  InitializeNativeTargetAsmPrinter();
+  InitializeNativeTargetAsmParser();
   
+  TheJIT = llvm::make_unique<KaleidoscopeJIT>();
+  InitializeModule();
+  run2();
   return 0;
-
+  
   // Install standard binary operators.
   // 1 is lowest precedence.
   BinopPrecedence['='] = 2;
@@ -1244,9 +1316,7 @@ int main() {
   fprintf(stderr, "ready> ");
   getNextToken();
 
-  TheJIT = llvm::make_unique<KaleidoscopeJIT>();
 
-  InitializeModule();
 
   // Run the main "interpreter loop" now.
   MainLoop();

@@ -3,6 +3,9 @@ set(LLVM_LINK_COMPONENTS
   Core
   ExecutionEngine
   InstCombine
+  Interpreter
+  MC
+  IRReader
   Object
   RuntimeDyld
   ScalarOpts
@@ -12,6 +15,7 @@ set(LLVM_LINK_COMPONENTS
 
 add_kaleidoscope_chapter(BuildingAJIT-ChA
   toy.cpp
+  toy2.cpp
   )
 
 if(LLVM_COMPILER_IS_GCC_COMPATIBLE)

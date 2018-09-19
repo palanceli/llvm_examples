@@ -9,16 +9,16 @@
 #import <Foundation/Foundation.h>
 
 int main(int argc, const char * argv[]) {
-  @autoreleasepool {
+  // @autoreleasepool {
       // insert code here...
       NSLog(@"Hello, World!");
-  }
+  // }
   return 0;
 }
 
 void testEntry(){
-  @autoreleasepool {
+  // @autoreleasepool {
     // insert code here...
     NSLog(@"Hello, test entry!");
-  }
+  // }
 }
