@@ -1,0 +1,7 @@
+
+*.xcworkspacedata
+Kaleidoscope/BuildingAJIT/ChapterA/test/test.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+Kaleidoscope/BuildingAJIT/ChapterA/test/test.xcodeproj/xcuserdata/palance.xcuserdatad/xcschemes/xcschememanagement.plist
+Kaleidoscope/BuildingAJIT/ChapterA/test/test.xcodeproj/project.xcworkspace/xcuserdata/palance.xcuserdatad/UserInterfaceState.xcuserstate
+Kaleidoscope/BuildingAJIT/ChapterA/test/test.xcodeproj/project.pbxproj
+Kaleidoscope/BuildingAJIT/ChapterA/test/test/main.ll

@@ -1,0 +1,21 @@
+set(LLVM_LINK_COMPONENTS
+  Analysis
+  Core
+  ExecutionEngine
+  InstCombine
+  Object
+  RuntimeDyld
+  ScalarOpts
+  Support
+  native
+  )
+
+add_kaleidoscope_chapter(BuildingAJIT-ChA
+  toy.cpp
+  )
+
+if(LLVM_COMPILER_IS_GCC_COMPATIBLE)
+  target_compile_options(BuildingAJIT-ChA PRIVATE
+    -Wno-unused-private-field
+    )
+endif()
