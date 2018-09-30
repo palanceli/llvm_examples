@@ -49,15 +49,15 @@ int main(int argc, char ** argv, char **envp) {
   ExecutionEngine* EE = EB.create();
   
   EE->runStaticConstructorsDestructors(false);
-  Function* func=EE->FindFunctionNamed(funcName);
+  Function* func=EE->FindFunctionNamed(funcName);   // 查找函数入口testEntry
   
   struct timeval tvBegin, tvEnd;
   gettimeofday(&tvBegin, NULL);
   
-  EE->runFunction(func,ArrayRef<GenericValue>());
+  EE->runFunction(func,ArrayRef<GenericValue>());   // 执行函数
   
   gettimeofday(&tvEnd, NULL);
-  //<1>.获得毫秒数:
+  // 计算耗时:
   double dDuration = 1000 * (tvEnd.tv_sec - tvBegin.tv_sec) + ((tvEnd.tv_usec - tvBegin.tv_usec) / 1000.0);
   printf("dDuration=%.2f ms. \n", dDuration);
   

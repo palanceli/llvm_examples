@@ -12,8 +12,14 @@ public:
   explicit FindNamedClassVisitor(ASTContext *Context)
     : Context(Context) {}
 
+  // 在访问CXXRecordDecl时被调用
   bool VisitCXXRecordDecl(CXXRecordDecl *Declaration) {
+    // dump内容
+//    if(Declaration->getQualifiedNameAsString() == "ClangTutorial::Demo")
+//      Declaration->dump();
+    
     if (Declaration->getQualifiedNameAsString() == "n::m::C") {
+      // 通过Context获得符号的原始位置
       FullSourceLoc FullLocation = Context->getFullLoc(Declaration->getBeginLoc());
       if (FullLocation.isValid())
         llvm::outs() << "Found declaration at "
@@ -32,6 +38,7 @@ public:
   explicit FindNamedClassConsumer(ASTContext *Context)
     : Visitor(Context) {}
 
+  // 通过RecursiveASTVisitor访问Translation Unit，遍历AST所有节点
   virtual void HandleTranslationUnit(clang::ASTContext &Context) {
     Visitor.TraverseDecl(Context.getTranslationUnitDecl());
   }
@@ -48,6 +55,7 @@ public:
   }
 };
 
+// ./find-class-decls "namespace n { namespace m { class C {}; } }"
 int main(int argc, char **argv) {
   if (argc > 1) {
     clang::tooling::runToolOnCode(new FindNamedClassAction, argv[1]);
